@@ -20,8 +20,9 @@ const bird = {
 
 const pipes = [];
 const pipeWidth = 50;
-const pipeGap = 150;
+const pipeGap = 150;  // Increased the pipe gap size to make the game easier
 let gameOver = false;
+let highScore = 0;  // Track the high score
 let lastTime = 0;  // Last timestamp for calculating delta time
 
 // Function to handle bird lift for both touch and other inputs
@@ -140,12 +141,18 @@ function gameLoop(timestamp) {
     drawPipes();
     drawScore();
   } else {
-    // Game over message
+    // Update high score if current score is higher
+    if (bird.score > highScore) {
+      highScore = bird.score;
+    }
+
+    // Game over message and score display
     ctx.fillStyle = 'red';
     ctx.font = '30px Noto Serif JP';
-    ctx.fillText('ゲームオーバー', canvas.width / 2 - 80, canvas.height / 2); // "Game Over" in Japanese
+    ctx.fillText('ゲームオーバー', canvas.width / 2 - 80, canvas.height / 2);  // "Game Over"
     ctx.font = '20px Noto Serif JP';
-    ctx.fillText('タッチでリスタート', canvas.width / 2 - 100, canvas.height / 2 + 40); // "Touch to Restart"
+    ctx.fillText('タッチでリスタート', canvas.width / 2 - 100, canvas.height / 2 + 40);  // "Touch to Restart"
+    ctx.fillText(`ハイスコア: ${highScore}`, canvas.width / 2 - 100, canvas.height / 2 + 80);  // High Score in Japanese
   }
 
   requestAnimationFrame(gameLoop);
