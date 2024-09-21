@@ -20,7 +20,7 @@ const bird = {
 
 const pipes = [];
 const pipeWidth = 50;
-const pipeGap = 120;
+const pipeGap = 150;
 let gameOver = false;
 let lastTime = 0;  // Last timestamp for calculating delta time
 
