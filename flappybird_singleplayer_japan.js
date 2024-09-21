@@ -33,6 +33,7 @@ function handleInput() {
 
 // Function to handle resetting the game
 function resetGame() {
+  // Only reset the game if it is in the "game over" state
   if (gameOver) {
     bird.y = 150;
     bird.velocity = 0;
@@ -49,9 +50,15 @@ document.addEventListener('mousedown', handleInput); // Mouse click
 document.addEventListener('touchstart', handleInput); // Touch input
 
 // Add event listeners for resetting the game after game over
-document.addEventListener('keydown', resetGame); // Key press to reset
-document.addEventListener('mousedown', resetGame); // Mouse click to reset
-document.addEventListener('touchstart', resetGame); // Touch input to reset
+document.addEventListener('keydown', (e) => {
+  if (gameOver) resetGame();  // Key press to reset only when game is over
+});
+document.addEventListener('mousedown', (e) => {
+  if (gameOver) resetGame();  // Mouse click to reset only when game is over
+});
+document.addEventListener('touchstart', (e) => {
+  if (gameOver) resetGame();  // Touch input to reset only when game is over
+});
 
 function drawBird() {
   if (bird.alive) {
