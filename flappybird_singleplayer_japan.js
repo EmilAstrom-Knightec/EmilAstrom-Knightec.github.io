@@ -23,6 +23,7 @@ const pipeWidth = 50;
 const pipeGap = 120;
 let gameOver = false;
 let lastTime = 0;  // Last timestamp for calculating delta time
+let resetListenerAdded = false;  // Track if reset event listeners have been added
 
 // Function to handle bird lift for both touch and other inputs
 function handleInput() {
@@ -110,6 +111,12 @@ function resetGame() {
   bird.alive = true;
   pipes.length = 0;
   gameOver = false;
+  resetListenerAdded = false;
+
+  // Remove the reset event listeners after the game restarts
+  document.removeEventListener('keydown', resetGame);
+  document.removeEventListener('mousedown', resetGame);
+  document.removeEventListener('touchstart', resetGame);
 }
 
 function gameLoop(timestamp) {
@@ -132,10 +139,13 @@ function gameLoop(timestamp) {
     ctx.font = '20px Noto Serif JP';
     ctx.fillText('タッチでリスタート', canvas.width / 2 - 100, canvas.height / 2 + 40); // "Touch to Restart"
 
-    // Restart game on any input
-    document.addEventListener('keydown', resetGame); // Key press to reset
-    document.addEventListener('mousedown', resetGame); // Mouse click to reset
-    document.addEventListener('touchstart', resetGame); // Touch input to reset
+    // Add reset event listeners only once after the game is over
+    if (!resetListenerAdded) {
+      document.addEventListener('keydown', resetGame);  // Key press to reset
+      document.addEventListener('mousedown', resetGame); // Mouse click to reset
+      document.addEventListener('touchstart', resetGame); // Touch input to reset
+      resetListenerAdded = true; // Ensure listeners are only added once
+    }
   }
 
   requestAnimationFrame(gameLoop);
