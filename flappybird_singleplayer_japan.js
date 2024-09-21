@@ -1,8 +1,9 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-canvas.width = 400;
-canvas.height = 600;
+// Set canvas size based on the screen's width and height
+canvas.width = window.innerWidth * 0.9;
+canvas.height = window.innerHeight * 0.8;
 
 const bird = {
   x: 50,
@@ -23,7 +24,7 @@ const pipeGap = 120;
 let gameOver = false;
 let lastTime = 0;  // Last timestamp for calculating delta time
 
-// Event listener for any input (key press, mouse click, or touch)
+// Function to handle bird lift for both touch and other inputs
 function handleInput() {
   if (!gameOver) {
     bird.velocity = bird.lift; // Apply lift when any input is detected
@@ -129,7 +130,7 @@ function gameLoop(timestamp) {
     ctx.font = '30px Noto Serif JP';
     ctx.fillText('ゲームオーバー', canvas.width / 2 - 80, canvas.height / 2); // "Game Over" in Japanese
     ctx.font = '20px Noto Serif JP';
-    ctx.fillText('スペースキーでリスタート', canvas.width / 2 - 100, canvas.height / 2 + 40); // "Press Space to Restart"
+    ctx.fillText('タッチでリスタート', canvas.width / 2 - 100, canvas.height / 2 + 40); // "Touch to Restart"
 
     // Restart game on any input
     document.addEventListener('keydown', resetGame); // Key press to reset
