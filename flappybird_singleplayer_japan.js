@@ -9,8 +9,8 @@ const bird = {
   y: 150,
   width: 20,
   height: 20,
-  gravity: 0.6,
-  lift: -10,
+  gravity: 1000,  // Gravity in pixels per second squared
+  lift: -300,     // Lift in pixels per second
   velocity: 0,
   color: 'orange', // Representing a Koi fish for the player
   score: 0,
@@ -20,15 +20,20 @@ const bird = {
 const pipes = [];
 const pipeWidth = 50;
 const pipeGap = 120;
-let frameCount = 0;
 let gameOver = false;
+let lastTime = 0;  // Last timestamp for calculating delta time
 
-// Event listener for player
-document.addEventListener('keydown', (e) => {
-  if (!gameOver && e.code === 'Space') {
-    bird.velocity = bird.lift; // Player controls the bird with the space bar
+// Event listener for any input (key press, mouse click, or touch)
+function handleInput() {
+  if (!gameOver) {
+    bird.velocity = bird.lift; // Apply lift when any input is detected
   }
-});
+}
+
+// Add event listeners for any input
+document.addEventListener('keydown', handleInput); // Any key press
+document.addEventListener('mousedown', handleInput); // Mouse click
+document.addEventListener('touchstart', handleInput); // Touch input
 
 function drawBird() {
   if (bird.alive) {
@@ -45,8 +50,8 @@ function drawPipes() {
   });
 }
 
-function updatePipes() {
-  if (frameCount % 90 === 0) {
+function updatePipes(deltaTime) {
+  if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 200) {
     const topHeight = Math.random() * (canvas.height / 2) + 50;
     const bottomHeight = canvas.height - topHeight - pipeGap;
     pipes.push({
@@ -57,7 +62,7 @@ function updatePipes() {
   }
 
   pipes.forEach((pipe, index) => {
-    pipe.x -= 4;
+    pipe.x -= 200 * deltaTime;  // Pipes move at 200 pixels per second
 
     // Remove pipes that go off screen
     if (pipe.x + pipeWidth < 0) {
@@ -84,11 +89,12 @@ function drawScore() {
   ctx.fillText(`Score: ${bird.score}`, 10, 25);
 }
 
-function updateBird() {
+function updateBird(deltaTime) {
   if (bird.alive) {
-    bird.velocity += bird.gravity;
-    bird.y += bird.velocity;
+    bird.velocity += bird.gravity * deltaTime;  // Update velocity based on gravity
+    bird.y += bird.velocity * deltaTime;  // Update position based on velocity
 
+    // If bird hits the ground or flies off-screen
     if (bird.y + bird.height > canvas.height || bird.y < 0) {
       bird.alive = false;
       gameOver = true;
@@ -103,19 +109,20 @@ function resetGame() {
   bird.alive = true;
   pipes.length = 0;
   gameOver = false;
-  frameCount = 0;
 }
 
-function gameLoop() {
+function gameLoop(timestamp) {
+  let deltaTime = (timestamp - lastTime) / 1000;  // Convert time difference to seconds
+  lastTime = timestamp;
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if (!gameOver) {
-    updateBird();
-    updatePipes();
+    updateBird(deltaTime);
+    updatePipes(deltaTime);
     drawBird();
     drawPipes();
     drawScore();
-    frameCount++;
   } else {
     // Game over message
     ctx.fillStyle = 'red';
@@ -124,13 +131,13 @@ function gameLoop() {
     ctx.font = '20px Noto Serif JP';
     ctx.fillText('スペースキーでリスタート', canvas.width / 2 - 100, canvas.height / 2 + 40); // "Press Space to Restart"
 
-    // Restart game on space key
-    document.addEventListener('keydown', (e) => {
-      if (gameOver && e.code === 'Space') resetGame();
-    });
+    // Restart game on any input
+    document.addEventListener('keydown', resetGame); // Key press to reset
+    document.addEventListener('mousedown', resetGame); // Mouse click to reset
+    document.addEventListener('touchstart', resetGame); // Touch input to reset
   }
 
   requestAnimationFrame(gameLoop);
 }
 
-gameLoop();
+requestAnimationFrame(gameLoop);  // Start the game loop
