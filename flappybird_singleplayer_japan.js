@@ -23,7 +23,6 @@ const pipeWidth = 50;
 const pipeGap = 120;
 let gameOver = false;
 let lastTime = 0;  // Last timestamp for calculating delta time
-let resetListenerAdded = false;  // Track if reset event listeners have been added
 
 // Function to handle bird lift for both touch and other inputs
 function handleInput() {
@@ -32,10 +31,27 @@ function handleInput() {
   }
 }
 
-// Add event listeners for any input
+// Function to handle resetting the game
+function resetGame() {
+  if (gameOver) {
+    bird.y = 150;
+    bird.velocity = 0;
+    bird.score = 0;
+    bird.alive = true;
+    pipes.length = 0;
+    gameOver = false;
+  }
+}
+
+// Add event listeners for any input (lift the bird)
 document.addEventListener('keydown', handleInput); // Any key press
 document.addEventListener('mousedown', handleInput); // Mouse click
 document.addEventListener('touchstart', handleInput); // Touch input
+
+// Add event listeners for resetting the game after game over
+document.addEventListener('keydown', resetGame); // Key press to reset
+document.addEventListener('mousedown', resetGame); // Mouse click to reset
+document.addEventListener('touchstart', resetGame); // Touch input to reset
 
 function drawBird() {
   if (bird.alive) {
@@ -104,21 +120,6 @@ function updateBird(deltaTime) {
   }
 }
 
-function resetGame() {
-  bird.y = 150;
-  bird.velocity = 0;
-  bird.score = 0;
-  bird.alive = true;
-  pipes.length = 0;
-  gameOver = false;
-  resetListenerAdded = false;
-
-  // Remove the reset event listeners after the game restarts
-  document.removeEventListener('keydown', resetGame);
-  document.removeEventListener('mousedown', resetGame);
-  document.removeEventListener('touchstart', resetGame);
-}
-
 function gameLoop(timestamp) {
   let deltaTime = (timestamp - lastTime) / 1000;  // Convert time difference to seconds
   lastTime = timestamp;
@@ -138,14 +139,6 @@ function gameLoop(timestamp) {
     ctx.fillText('ゲームオーバー', canvas.width / 2 - 80, canvas.height / 2); // "Game Over" in Japanese
     ctx.font = '20px Noto Serif JP';
     ctx.fillText('タッチでリスタート', canvas.width / 2 - 100, canvas.height / 2 + 40); // "Touch to Restart"
-
-    // Add reset event listeners only once after the game is over
-    if (!resetListenerAdded) {
-      document.addEventListener('keydown', resetGame);  // Key press to reset
-      document.addEventListener('mousedown', resetGame); // Mouse click to reset
-      document.addEventListener('touchstart', resetGame); // Touch input to reset
-      resetListenerAdded = true; // Ensure listeners are only added once
-    }
   }
 
   requestAnimationFrame(gameLoop);
